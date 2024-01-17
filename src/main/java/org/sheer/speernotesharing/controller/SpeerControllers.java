@@ -7,6 +7,7 @@ import org.sheer.speernotesharing.exceptions.NoteNotFoundException;
 import org.sheer.speernotesharing.exceptions.UserNotFoundException;
 import org.sheer.speernotesharing.repository.UserRepository;
 import org.sheer.speernotesharing.service.SpeerServices;
+import org.sheer.speernotesharing.service.UserService;
 import org.sheer.speernotesharing.speerDto.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -21,6 +22,9 @@ public class SpeerControllers {
     @Autowired
     private SpeerServices speerServices;
 
+    @Autowired
+    private UserService userService;
+
     /*
     GET /api/notes: get a list of all notes for the authenticated user.
     GET /api/notes/:id: get a note by ID for the authenticated user.
@@ -32,24 +36,39 @@ public class SpeerControllers {
     GET /api/search?q=:query: search for notes based on keywords for the authenticated user.
      */
 
+    @PostMapping("/signup")
+    public ResponseEntity<User> signup(@RequestBody UserPayload payload){
+        User user = userService.signup(payload);
+        return new ResponseEntity<>(user, HttpStatus.CREATED);
+    }
+
+    @PostMapping("/signin")
+    public ResponseEntity<String> login(@RequestBody UserPayload userPayload){
+        String token = userService.login(userPayload);
+
+        return ResponseEntity.ok(token);
+    }
+
     @GetMapping("/notes")
-    public ResponseEntity<List<Note>> getAllNotes(){
-        List<Note> notes = speerServices.getAllNotes();
-        return new ResponseEntity<>(notes, HttpStatus.OK);
+    public ResponseEntity<List<UserDto>> getAllNotes(@RequestParam String token){
+        List<UserDto> usersNotes = speerServices.getAllNotes(token);
+        return new ResponseEntity<>(usersNotes, HttpStatus.OK);
     }
 
     @GetMapping("/notes/{noteId}")
-    public ResponseEntity<Note> getNoteByNoteId(@PathVariable Integer noteId) throws NoteNotFoundException {
-        Note note = speerServices.getNotesById(noteId);
+    public ResponseEntity<Note> getNoteByNoteId(@RequestParam String token, @PathVariable Integer noteId) throws NoteNotFoundException {
+        Note note = speerServices.getNotesById(token, noteId);
         return new ResponseEntity<>(note, HttpStatus.OK);
     }
 
     @PostMapping("/notes")
-    public ResponseEntity<Note> addNote(@RequestBody NotesPayload notesPayload) throws UserNotFoundException {
-        Note note = speerServices.addNotes(notesPayload);
-        return  new ResponseEntity<>(note, HttpStatus.CREATED);
+    public ResponseEntity<User> addNote(@RequestParam String token, @RequestBody NotesPayload notesPayload) throws UserNotFoundException {
+        User user = speerServices.addNotes(token, notesPayload);
+        return  new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 
+    /*
+    This block is in the older first version, uset to post a user
     @PostMapping("/user")
     public ResponseEntity<User> addUser(@RequestBody UserDto userDto){
 
@@ -64,29 +83,31 @@ public class SpeerControllers {
         return new ResponseEntity<>(usersList, HttpStatus.OK);
     }
 
-    @PutMapping("/notes/{id}")
-    public ResponseEntity<Note> updateNote(@PathVariable Integer id, @RequestBody NoteUpdatePayload noteUpdatePayload) throws NoteNotFoundException {
-        Note updatedNote = speerServices.updateNotes(id, noteUpdatePayload);
+     */
 
-        return ResponseEntity.ok(updatedNote);
+    @PutMapping("/notes/{id}")
+    public ResponseEntity<User> updateNote(@RequestParam String token, @PathVariable Integer id, @RequestBody NoteUpdatePayload noteUpdatePayload) throws NoteNotFoundException {
+        User updatedUser = speerServices.updateNotes(id, noteUpdatePayload, token);
+
+        return ResponseEntity.ok(updatedUser);
     }
 
     @DeleteMapping("/notes/{id}")
-    public ResponseEntity<String> deleteNote(@PathVariable Integer id) throws NoteNotFoundException {
-        String message = speerServices.deleteNote(id);
+    public ResponseEntity<String> deleteNote(@RequestParam String token, @PathVariable Integer id) throws NoteNotFoundException {
+        String message = speerServices.deleteNote(token, id);
         return ResponseEntity.ok(message);
     }
 
     @PostMapping("notes/{id}/share")
-    public ResponseEntity<List<ResponseDtoSharing>> shareNote(@PathVariable Integer id, @RequestBody SharingPayload payload) throws NoteNotFoundException {
-        List<ResponseDtoSharing> shaedNotes = speerServices.shareNotes(id, payload);
+    public ResponseEntity<List<User>> shareNote(@RequestParam String token, @PathVariable Integer id, @RequestBody SharingPayload payload) throws NoteNotFoundException {
+        List<User> users = speerServices.shareNotes(token, id, payload);
 
-        return ResponseEntity.ok(shaedNotes);
+        return ResponseEntity.ok(users);
     }
 
     @GetMapping("/search")
-    public ResponseEntity<List<NoteUpdatePayload>> getAllNotesByQuery(@RequestParam String query){
-        List<NoteUpdatePayload> notes = speerServices.finaAllNotes(query);
+    public ResponseEntity<List<NoteUpdatePayload>> getAllNotesByQuery(@RequestParam String token,@RequestParam String query){
+        List<NoteUpdatePayload> notes = speerServices.finaAllNotes(token, query);
 
         return ResponseEntity.ok(notes);
     }

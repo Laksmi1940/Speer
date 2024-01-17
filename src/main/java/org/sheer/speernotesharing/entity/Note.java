@@ -1,5 +1,6 @@
 package org.sheer.speernotesharing.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
@@ -21,11 +22,11 @@ public class Note {
     private String noteTitle;
     private String noteBody;
 
-    @ManyToMany(cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    @ManyToMany(fetch = FetchType.EAGER)
     @JoinTable(name = "user_Id_fk",
             joinColumns = @JoinColumn(name = "note_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id"))
-//    @JsonBackReference
-    @JsonIgnore
+    @JsonBackReference
+    //@JsonIgnore
     private List<User> users;
 }

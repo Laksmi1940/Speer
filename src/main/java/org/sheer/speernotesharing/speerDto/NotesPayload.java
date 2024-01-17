@@ -14,5 +14,5 @@ import org.sheer.speernotesharing.entity.User;
 public class NotesPayload {
     private String noteTitle;
     private String noteBody;
-    private Integer userId;
+//    private Integer userId;
 }
