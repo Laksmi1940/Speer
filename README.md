@@ -43,15 +43,3 @@ Deliverables
     Details explaining the choice of framework/db/ any 3rd party tools.
     instructions on how to run your code and run the tests.
     Any necessary setup files or scripts to run your code locally or in a test environment.
-
-
-Evaluation Criteria
-
-Your code will be evaluated on the following criteria:
-
-    Correctness: does the code meet the requirements and work as expected?
-    Performance: does the code use rate limiting and request throttling to handle high traffic?
-    Security: does the code implement secure authentication and authorization mechanisms?
-    Quality: is the code well-organized, maintainable, and easy to understand?
-    Completeness: does the code include unit, integration, and end-to-end tests for all endpoints?
-    Search Functionality: does the code implement text indexing and search functionality to enable users to search for notes based on keywords?
